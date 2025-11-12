@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AP MODEL SCHOOL SEETHARAMAPURAM - VOCATIONAL LAB - TAB DETAILS</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  h1, h2, h3 { text-align: center; margin: 5px 0; }
+  .tab-sheet {
+    page-break-after: always;
+    border: 2px solid #000;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border: 1px solid #000;
+    padding: 6px;
+    text-align: center;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  input[type="text"], input[type="number"], input[type="file"] {
+    width: 95%;
+    padding: 4px;
+    margin: 2px 0;
+  }
+  img {
+    max-height: 50px;
+  }
+  .qr-container {
+    text-align: center;
+    margin-top: 10px;
+  }
+  .print-btn, .add-btn {
+    margin: 10px 5px;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  .header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+  .tab-number-box {
+    text-align: center;
+    margin: 15px 0;
+  }
+  .tab-number-box label {
+    font-weight: bold;
+    margin-right: 10px;
+    font-size: 18px;
+  }
+  .tab-number-box input {
+    font-size: 18px;
+    text-align: center;
+    width: 120px;
+    height: 40px;
+    border: 2px solid #000;
+    border-radius: 5px;
+  }
+  @media print {
+    input[type="file"],
+    img,
+    .add-btn,
+    .print-btn {
+      display: none !important;
+    }
+  }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  function addStudent(tabNum) {
+    const tbody = document.getElementById(`tbody${tabNum}`);
+    const rowCount = tbody.rows.length;
+    const row = tbody.insertRow(-1);
+
+    row.insertCell(0).innerText = rowCount + 1;
+    row.insertCell(1).innerHTML = `<input type="text" placeholder="Student Name">`;
+    row.insertCell(2).innerHTML = `<input type="number" placeholder="Roll No" min="1">`;
+    row.insertCell(3).innerHTML = `<input type="text" placeholder="Class Name">`;
+    row.insertCell(4).innerHTML = `<input type="file" accept="image/*" onchange="previewPhoto(event, ${tabNum}, ${rowCount})">`;
+    row.insertCell(5).innerHTML = `<img id="photo${tabNum}_${rowCount}" alt="Preview">`;
+  }
+
+  function previewPhoto(event, tabNum, rowNum) {
+    const reader = new FileReader();
+    reader.onload = function(){
+      document.getElementById(`photo${tabNum}_${rowNum}`).src = reader.result;
+    };
+    reader.readAsDataURL(event.target.files[0]);
+  }
+
+  function generateQRCode(tabNum) {
+    const tbody = document.getElementById(`tbody${tabNum}`);
+    const rows = tbody.rows;
+    const tabInput = document.getElementById(`tabInput${tabNum}`).value || `Tab-${tabNum}`;
+    let details = `AP MODEL SCHOOL SEETHARAMAPURAM\nVOCATIONAL LAB - TAB DETAILS\n${tabInput} Details:\n`;
+
+    for (let i = 0; i < rows.length; i++) {
+      const name = rows[i].cells[1].querySelector('input').value || 'N/A';
+      const roll = rows[i].cells[2].querySelector('input').value || 'N/A';
+      const cls  = rows[i].cells[3].querySelector('input').value || 'N/A';
+      details += `${i+1}. ${name} | Roll: ${roll} | Class: ${cls}\n`;
+    }
+
+    const qrDiv = document.getElementById(`qr${tabNum}`);
+    qrDiv.innerHTML = '';
+    new QRCode(qrDiv, {
+      text: details,
+      width: 150,
+      height: 150
+    });
+  }
+
+  function printPreview() {
+    window.print();
+  }
+</script>
+</head>
+<body>
+  <h1>AP MODEL SCHOOL SEETHARAMAPURAM</h1>
+  <h2>VOCATIONAL LAB - TAB DETAILS</h2>
+  <button class="print-btn" onclick="printPreview()">🖨️ Print All Sheets</button>
+
+  <div id="allTabs">
+    <script>
+      for(let t=1; t<=30; t++){
+        document.write(`
+          <div class="tab-sheet">
+            <div class="header">
+              <h1>AP MODEL SCHOOL SEETHARAMAPURAM</h1>
+              <h2>VOCATIONAL LAB - TAB DETAILS</h2>
+            </div>
+            <div class="tab-number-box">
+              <label>Tab Number:</label>
+              <input type="text" id="tabInput${t}" value="Tab-${t}" />
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>S.No</th>
+                  <th>Student Name</th>
+                  <th>Roll No</th>
+                  <th>Class</th>
+                  <th>Upload Photo</th>
+                  <th>Preview</th>
+                </tr>
+              </thead>
+              <tbody id="tbody${t}"></tbody>
+            </table>
+            <div class="qr-container">
+              <div id="qr${t}"></div>
+            </div>
+            <button class="add-btn" onclick="addStudent(${t})">➕ Add Student</button>
+            <button class="add-btn" onclick="generateQRCode(${t})">⚙️ Generate QR Code</button>
+          </div>
+        `);
+      }
+    </script>
+  </div>
+</body>
+</html>
+<style>
+  /* ... other styles remain unchanged ... */
+  .tab-number-box input {
+    font-size: 18px;
+    text-align: center;
+    width: 400px;      /* Increased width for long tab numbers */
+    height: 40px;
+    border: 2px solid #000;
+    border-radius: 5px;
+  }
+</style>
